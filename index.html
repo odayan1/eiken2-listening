@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>英検2級 リスニングマスター（試作版）｜KATEぷら</title>
+<style>
+:root{
+  --sky:#2fbdea; --green:#8dc63f; --yellow:#f7d000;
+  --ink:#2b3a42; --bg:#f4fafd; --card:#ffffff;
+  --ng:#e74c3c; --ok:#27ae60; --purple:#7a4dbf;
+}
+*{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent;}
+body{font-family:'Hiragino Kaku Gothic ProN','Hiragino Sans','Yu Gothic',Meiryo,sans-serif; background:var(--bg); color:var(--ink); min-height:100vh;}
+.wrap{max-width:640px; margin:0 auto; padding:16px;}
+header{background:linear-gradient(135deg,var(--sky),#1fa9d6); color:#fff; padding:14px 16px; border-radius:0 0 18px 18px;}
+header .brand{font-size:12px; opacity:.9; letter-spacing:.08em;}
+header h1{font-size:20px; margin-top:2px;}
+header .sub{font-size:12px; opacity:.85; margin-top:2px;}
+.card{background:var(--card); border-radius:16px; padding:20px; box-shadow:0 3px 14px rgba(43,58,66,.08); margin-bottom:14px;}
+.btn{display:block; width:100%; padding:14px; border:none; border-radius:12px; font-size:16px; font-weight:bold; cursor:pointer; transition:.15s; background:var(--sky); color:#fff;}
+.btn:active{transform:scale(.98);}
+.btn.green{background:var(--green);}
+.btn.ghost{background:#eef5f9; color:var(--ink);}
+.btn:disabled{opacity:.45; cursor:default;}
+.dots{display:flex; gap:5px; justify-content:center; margin-bottom:12px;}
+.dot{width:10px; height:10px; border-radius:50%; background:#d5e5ee; transition:.2s;}
+.dot.cur{background:var(--sky); transform:scale(1.3);}
+.dot.hit{background:var(--green);}
+.dot.miss{background:var(--ng);}
+.scorebar{display:flex; justify-content:space-between; align-items:center; font-size:13px; font-weight:bold; color:#5a7484; margin-bottom:10px;}
+.scorebar .pt{color:var(--sky); font-size:16px;}
+.tora{background:#fffbe8; border:1.5px solid var(--yellow); border-radius:12px; padding:12px 14px; margin:10px 0; font-size:13px; line-height:1.65;}
+.tora .tora-title{font-weight:bold; color:#8a7100; margin-bottom:4px;}
+.choices{display:flex; flex-direction:column; gap:8px; margin-top:12px;}
+.choice{padding:12px 14px; border:2px solid #dfeef5; border-radius:12px; background:#fff; font-size:14px; text-align:left; cursor:pointer; transition:.15s; width:100%;}
+.choice:not(:disabled):active{border-color:var(--sky);}
+.choice.sel-ok{border-color:var(--ok); background:#eafaf0; font-weight:bold;}
+.choice.sel-ng{border-color:var(--ng); background:#fdeeec;}
+.choice.reveal-ok{border-color:var(--ok); background:#eafaf0;}
+.choice:disabled{cursor:default; opacity:.9;}
+.timerwrap{height:10px; background:#e3eef5; border-radius:999px; overflow:hidden; margin:12px 0 4px;}
+.timerbar{height:100%; width:100%; background:linear-gradient(90deg,var(--green),var(--yellow),var(--ng)); transition:width .1s linear;}
+.timertext{font-size:12px; color:#7b93a0; text-align:center; margin-bottom:6px;}
+.playbtn{display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding:16px; border:none; border-radius:14px; background:linear-gradient(135deg,var(--sky),#1fa9d6); color:#fff; font-size:17px; font-weight:bold; cursor:pointer; box-shadow:0 4px 12px rgba(47,189,234,.35);}
+.playbtn:disabled{opacity:.5; box-shadow:none;}
+.audiowarn{display:none; background:#fdeeec; border:1.5px solid var(--ng); color:#a33; border-radius:10px; padding:10px 12px; font-size:12.5px; margin-top:10px; line-height:1.6;}
+.audiowarn.show{display:block;}
+.scenechip{display:inline-block; background:#e9f2fb; color:#3a6ea5; font-size:12px; font-weight:bold; padding:4px 12px; border-radius:999px; margin-bottom:8px;}
+.qtext{font-size:16px; font-weight:bold; margin:8px 0 2px;}
+.feedback{font-size:20px; font-weight:bold; margin:12px 0 6px; text-align:center;}
+.feedback.ok{color:var(--ok);}
+.feedback.ng{color:var(--ng);}
+.expl{background:#f4f8fb; border-radius:12px; padding:12px 14px; font-size:13.5px; line-height:1.7; margin-top:10px;}
+.expl .wana-title{font-weight:bold; color:var(--ng); margin-bottom:3px;}
+.hunter{margin-top:14px;}
+.hunter-head{font-weight:bold; font-size:14px; margin-bottom:4px; color:var(--purple);}
+.hunter-sub{font-size:12px; color:#7b93a0; margin-bottom:10px; line-height:1.6;}
+.script-box{background:#fff; border:2px solid #e3d9f5; border-radius:12px; padding:12px 14px; line-height:2.05; font-size:14.5px;}
+.script-line{margin-bottom:6px;}
+.spk{display:inline-block; font-size:11px; font-weight:bold; color:#fff; border-radius:6px; padding:1px 7px; margin-right:6px; vertical-align:1px;}
+.spk.m{background:#3a6ea5;} .spk.w{background:#c2679b;}
+.w{cursor:pointer; border-radius:4px; padding:1px 1px; transition:.15s;}
+.w.miss-flash{background:#fdd;}
+.w.found-shift{background:rgba(31,122,77,.2); border-bottom:2.5px solid #1f7a4d; font-weight:bold;}
+.w.found-link{background:rgba(214,69,69,.16); border-bottom:2.5px solid #d64545; font-weight:bold;}
+.w.found-vocab{background:rgba(122,77,191,.16); border-bottom:2.5px solid var(--purple); font-weight:bold;}
+.hunter-status{font-size:13px; font-weight:bold; color:var(--purple); margin:8px 0;}
+.signnotes{margin-top:8px;}
+.signnote{display:none; font-size:12.5px; background:#faf7ff; border-left:3px solid var(--purple); padding:7px 10px; margin-bottom:6px; border-radius:0 8px 8px 0; line-height:1.6;}
+.signnote.shown{display:block;}
+.signnote b.k-shift{color:#1f7a4d;} .signnote b.k-link{color:#d64545;} .signnote b.k-vocab{color:var(--purple);}
+.legend{display:flex; flex-wrap:wrap; gap:6px; margin:8px 0; font-size:11px;}
+.legend span{padding:2px 9px; border-radius:999px; color:#fff;}
+.legend .lg-shift{background:#1f7a4d;} .legend .lg-link{background:#d64545;} .legend .lg-vocab{background:var(--purple);}
+.result-score{text-align:center; margin:10px 0;}
+.result-score .big{font-size:46px; font-weight:bold; color:var(--sky);}
+.result-score .big.gold{color:#c9a227; text-shadow:0 0 12px rgba(201,162,39,.5);}
+.result-label{text-align:center; font-size:22px; font-weight:bold; margin-bottom:8px;}
+.result-label.pass{color:var(--ok);} .result-label.sclass{color:#c9a227;} .result-label.fail{color:#7b93a0;}
+.passline{position:relative; height:14px; background:#e3eef5; border-radius:999px; margin:14px 0 26px;}
+.passline .fill{height:100%; border-radius:999px; background:linear-gradient(90deg,var(--sky),var(--green)); transition:width 1s ease;}
+.passline .mark{position:absolute; top:-4px; width:2.5px; height:22px; background:#8a7100;}
+.passline .mark-label{position:absolute; top:24px; font-size:10.5px; color:#8a7100; transform:translateX(-50%); white-space:nowrap;}
+.wrong-review{margin-top:14px;}
+.wrong-review h3{font-size:14.5px; margin-bottom:8px; color:var(--ng);}
+.wrong-item{background:#fdf6f5; border-radius:10px; padding:10px 12px; font-size:12.5px; margin-bottom:8px; line-height:1.65;}
+footer{text-align:center; font-size:11px; color:#9ab0bc; padding:14px 16px 30px; line-height:1.7;}
+.hidden{display:none;}
+.confetti{position:fixed; top:-16px; width:10px; height:14px; z-index:999; pointer-events:none;}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg);}}
+@media(max-width:520px){ .wrap{padding:12px;} .script-box{font-size:13.5px;} }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap" style="padding:0;">
+    <div class="brand">KATEぷら｜つまずきを、プラスに。</div>
+    <h1>🎧 英検2級 リスニングマスター</h1>
+    <div class="sub">試作版・4問（対話2問＋説明文2問）／英文・音声はすべてオリジナル</div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- スタート画面 -->
+  <div class="card" id="start-view">
+    <div class="tora">
+      <div class="tora-title">📜 虎の巻ポイント（始める前に）</div>
+      ① 英文は<b>一度しか読まれない</b>。だから「聞く前の準備」で差がつく。<br>
+      ② <b>選択肢を先読み</b>してから再生する（このアプリでは再生前に選択肢が見えます。実戦と同じ動きを練習！）<br>
+      ③ <b>But / However / Instead / Now の後</b>に正解の根拠が来やすい。場面や時間が切り替わる合図を聞き逃さない。
+    </div>
+    <p style="font-size:13.5px; line-height:1.8; margin-bottom:12px;">
+      流れ：<b>選択肢を先読み → 音声を再生（1回だけ）→ 10秒以内に解答 → 解説で「サイン語ハンター」</b>に挑戦。<br>
+      サイン語ハンターでは、スクリプトの中から「場面切り替えの合図」「音がつながる箇所」「重要語彙」をタップで探します。
+    </p>
+    <button class="btn" id="start-btn">スタート！</button>
+  </div>
+
+  <!-- 問題画面 -->
+  <div class="hidden" id="quiz-view">
+    <div class="scorebar">
+      <span id="qnum-label">第1問 / 4</span>
+      <span>SCORE <span class="pt" id="score-label">0</span> pt</span>
+    </div>
+    <div class="dots" id="dots"></div>
+
+    <div class="card">
+      <span class="scenechip" id="scene-chip"></span>
+      <div class="qtext" id="q-text"></div>
+      <div style="font-size:12px; color:#7b93a0;" id="preread-hint">👇 まず選択肢を先読み！読めたら再生ボタン</div>
+      <div class="choices" id="choices"></div>
+
+      <div style="margin-top:14px;">
+        <button class="playbtn" id="play-btn">▶ 音声を再生（1回だけ）</button>
+        <div class="audiowarn" id="audio-warn">
+          ⚠️ この画面では音声を再生できません（プレビュー環境の制限）。<b>公開版のURLをスマホやブラウザで開いて</b>お試しください。<br>
+          ※下のボタンで音声なしでも進められます（スクリプト読解モード）。
+          <button class="btn ghost" id="skip-audio-btn" style="margin-top:8px; font-size:13px; padding:10px;">音声なしで解答に進む</button>
+        </div>
+      </div>
+
+      <div id="timer-area" class="hidden">
+        <div class="timerwrap"><div class="timerbar" id="timer-bar"></div></div>
+        <div class="timertext" id="timer-text">のこり 10 秒</div>
+      </div>
+
+      <div id="feedback-area" class="hidden">
+        <div class="feedback" id="feedback-label"></div>
+        <div class="expl" id="expl-box"></div>
+        <div class="tora" id="tora-box"></div>
+
+        <div class="hunter" id="hunter-area">
+          <div class="hunter-head">🔎 サイン語ハンター</div>
+          <div class="hunter-sub">スクリプトの中から<b>サイン語（場面・時間の切り替え／音の連結／重要語彙）</b>をタップして探そう！ 1つ見つけるごとに +20pt</div>
+          <div class="legend">
+            <span class="lg-shift">場面・時間の切り替え</span>
+            <span class="lg-link">音の連結・脱落</span>
+            <span class="lg-vocab">重要語彙</span>
+          </div>
+          <div class="script-box" id="script-box"></div>
+          <div class="hunter-status" id="hunter-status"></div>
+          <button class="btn ghost" id="reveal-btn" style="font-size:13px; padding:10px;">残りのサイン語を全部見る</button>
+          <div class="signnotes" id="sign-notes"></div>
+        </div>
+
+        <button class="btn green" id="next-btn" style="margin-top:14px;">次の問題へ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 結果画面 -->
+  <div class="hidden" id="result-view">
+    <div class="card">
+      <div class="result-label" id="result-label"></div>
+      <div class="result-score"><span class="big" id="result-score">0</span><span style="font-size:18px; color:#7b93a0;"> pt</span></div>
+      <div style="text-align:center; font-size:14px; color:#5a7484;" id="result-detail"></div>
+      <div class="passline">
+        <div class="fill" id="passline-fill" style="width:0%;"></div>
+        <div class="mark" style="left:70%;"></div>
+        <div class="mark-label" style="left:70%;">合格ライン70%</div>
+        <div class="mark" style="left:90%; background:#c9a227;"></div>
+        <div class="mark-label" style="left:90%; color:#c9a227;">S級90%</div>
+      </div>
+
+      <div class="tora">
+        <div class="tora-title">📜 今日の虎の巻まとめ</div>
+        ・第1部は冒頭の一言で「誰と誰が・どこで」を特定（場面はほぼ6種類）<br>
+        ・誤答は「会話に出てきた単語」で作られる。聞こえた単語に飛びつかない<br>
+        ・<b>But / However / Instead / Now / After / The next morning</b> …切り替えサインの直後に核心<br>
+        ・時間が2つ以上出たら（last week / yesterday など）「質問はどの時点？」を確認
+      </div>
+
+      <div class="wrong-review" id="wrong-review"></div>
+
+      <button class="btn" id="retry-btn" style="margin-top:14px;">もう一度挑戦する</button>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  KATEぷら 英検2級 リスニングマスター（試作版）<br>
+  本アプリの英文・設問・音声はすべてオリジナルです（実際の検定問題ではありません）
+</footer>
+
+<script>
+"use strict";
+// ============ データ ============
+// sign.k: 'shift'(場面・時間切替) / 'link'(音の連結・脱落) / 'vocab'(重要語彙)
+const ITEMS = [
+  {
+    id:"itemA", part:1, audio:"audio/itemA.mp3", scene:"第1部・職場での同僚会話",
+    q:"What did the woman finish?",
+    choices:["The budget report","The preparation for tomorrow's presentation","A phone call with a client","A meeting with the client"],
+    ans:1,
+    script:[
+      {sp:"M", seg:[
+        {t:"Did I disturb you?", sign:{k:"link", label:"Did I disturb you?", note:"「Did I」が連結して“ディダイ”のように聞こえる。disturb（邪魔する）は 9/26 に出た要注意語！"}},
+        {t:" I know you're getting ready for the client meeting."}
+      ]},
+      {sp:"W", seg:[
+        {t:"No, it's fine. I just "},
+        {t:"finished the preparation", sign:{k:"vocab", label:"finished the preparation", note:"preparation（準備）＝これも 9/26 のわからなかった語彙。動詞 prepare とセットで覚える。ここが答えの根拠。"}},
+        {t:" for tomorrow's presentation."}
+      ]},
+      {sp:"M", seg:[
+        {t:"Great. By the way, do we have "},
+        {t:"enough budget", sign:{k:"vocab", label:"enough budget", note:"budget（予算）＝9/26 のわからなかった語彙。ビジネス場面の頻出語。"}},
+        {t:" left for the new software?"}
+      ]},
+      {sp:"W", seg:[{t:"Yes, we do. I checked this morning."}]}
+    ],
+    wana:"選択肢1「The budget report」は、会話に出てきた budget という単語で作られたひっかけ。budget は「残っているか確認した」だけで、finish したのは preparation。",
+    tora:"虎の巻：誤答は『会話に出てきた単語』で作られる。聞こえた単語に飛びつかず、「質問された人（woman）が・何を finish したか」だけを拾う。"
+  },
+  {
+    id:"itemB", part:1, audio:"audio/itemB.mp3", scene:"第1部・職場での会話（予定変更）",
+    q:"What time is the meeting now?",
+    choices:["10 a.m.","1 p.m.","3 p.m.","It was cancelled"],
+    ans:2,
+    script:[
+      {sp:"M", seg:[
+        {t:"Sorry to interrupt", sign:{k:"vocab", label:"Sorry to interrupt", note:"interrupt（割って入る）＝9/26 のわからなかった語彙。disturb と似ているが、会話・作業を中断するニュアンス。"}},
+        {t:", but the meeting time changed."}
+      ]},
+      {sp:"W", seg:[{t:"Oh? I thought it was at ten a.m."}]},
+      {sp:"M", seg:[
+        {t:"It was, "},
+        {t:"but now it's at three p.m. instead", sign:{k:"shift", label:"but now … instead", note:"but ＋ now ＋ instead のトリプルサイン！ 前に出た情報（10時）が覆って、最新情報（3時）に切り替わる合図。"}},
+        {t:"."}
+      ]},
+      {sp:"W", seg:[{t:"Thanks for letting me know. I'll update my schedule."}]}
+    ],
+    wana:"最初に聞こえる「ten a.m.」に飛びつくと誤答。数字が2つ出たら、どちらが「今の正しい情報」かを確認する。",
+    tora:"虎の巻：一度出た案が覆るパターン。But / Actually / Instead の後に正解の根拠が来る。数字の対比はほぼ出題される。"
+  },
+  {
+    id:"itemC", part:2, audio:"audio/itemC.mp3", scene:"第2部・人物ストーリー型",
+    q:"What is Emily doing now?",
+    choices:["Still catching up alone","Helping her friends review","Still absent from school","Recording lessons for others"],
+    ans:1,
+    script:[
+      {sp:null, seg:[
+        {t:"Emily was "},
+        {t:"absent from school", sign:{k:"vocab", label:"absent from school", note:"absent（欠席している）＝9/26 のわからなかった語彙。反対語は present（出席している）。"}},
+        {t:" for a week because she was sick. "},
+        {t:"During that time", sign:{k:"shift", label:"During that time", note:"during ＝「〜のあいだ」。欠席していた期間の話に入る合図。9/26 の No.23（during this season）と同じサイン語！"}},
+        {t:", her classmates recorded the lessons for her so she wouldn't fall behind. "},
+        {t:"After she came back", sign:{k:"shift", label:"After she came back", note:"after ＝ 場面が「復帰後」に切り替わる合図。9/26 の No.22（after the show）と同じサイン語！"}},
+        {t:", she spent extra hours each evening catching up. "},
+        {t:"Now", sign:{k:"shift", label:"Now", note:"now ＝「現在」への切り替え。質問は What is Emily doing now? なので、ここから後だけが答えの根拠になる。"}},
+        {t:", she has caught up with the rest of the class and even helps her friends review."}
+      ]}
+    ],
+    wana:"「catching up」「recorded」「absent」は全部本文に出てくるが、どれも過去の話。質問は now（現在）を聞いているので、Now, の後だけが答え。",
+    tora:"虎の巻：人物ストーリー型は However / Now / Finally の直後に核心。時間が動くたびに「今どの時点の話？」を意識する。"
+  },
+  {
+    id:"itemD", part:2, audio:"audio/itemD.mp3", scene:"第2部・人物ストーリー型（出張）",
+    q:"What did Daniel do alone?",
+    choices:["Visited the client's office","Had lunch with coworkers","Finished a report at the hotel","Went sightseeing"],
+    ans:2,
+    script:[
+      {sp:null, seg:[
+        {t:"Daniel went on a business trip with two coworkers. "},
+        {t:"During the day", sign:{k:"shift", label:"During the day", note:"「日中は」の合図。ここでは3人一緒に行動している。"}},
+        {t:", they visited the client's office together and had lunch as a group. "},
+        {t:"However, in the evening", sign:{k:"shift", label:"However, in the evening", note:"However ＋ 時間の切り替え！ ここからダニエルだけ別行動になる。9/26 に間違えた No.22 と同じ「一緒→別行動」の型。"}},
+        {t:", Daniel stayed at the hotel to finish a report while his coworkers went sightseeing. "},
+        {t:"The next morning", sign:{k:"shift", label:"The next morning", note:"翌朝＝また全員合流に切り替わる合図。"}},
+        {t:", they all met again for the flight home."}
+      ]}
+    ],
+    wana:"「visited the office」「had lunch」は一緒にした行動、「sightseeing」は同僚だけの行動。alone（1人で）したのはホテルでのレポート作成だけ。",
+    tora:"虎の巻：「誰が・いつ・何をしたか」を切り替えサインごとに整理する。質問の alone / together を聞き逃さない。"
+  }
+];
+
+// ============ 状態 ============
+let qIndex = 0, score = 0, streak = 0, answered = false, timerId = null, audioObj = null, audioPlayed = false;
+const results = []; // {correct:bool}
+
+// ============ 要素 ============
+const startView = document.getElementById("start-view");
+const quizView = document.getElementById("quiz-view");
+const resultView = document.getElementById("result-view");
+const dotsEl = document.getElementById("dots");
+const qnumLabel = document.getElementById("qnum-label");
+const scoreLabel = document.getElementById("score-label");
+const sceneChip = document.getElementById("scene-chip");
+const qText = document.getElementById("q-text");
+const choicesEl = document.getElementById("choices");
+const playBtn = document.getElementById("play-btn");
+const audioWarn = document.getElementById("audio-warn");
+const skipAudioBtn = document.getElementById("skip-audio-btn");
+const timerArea = document.getElementById("timer-area");
+const timerBar = document.getElementById("timer-bar");
+const timerText = document.getElementById("timer-text");
+const feedbackArea = document.getElementById("feedback-area");
+const feedbackLabel = document.getElementById("feedback-label");
+const explBox = document.getElementById("expl-box");
+const toraBox = document.getElementById("tora-box");
+const scriptBox = document.getElementById("script-box");
+const hunterStatus = document.getElementById("hunter-status");
+const revealBtn = document.getElementById("reveal-btn");
+const signNotes = document.getElementById("sign-notes");
+const nextBtn = document.getElementById("next-btn");
+const prereadHint = document.getElementById("preread-hint");
+
+// ============ 進捗ドット ============
+function renderDots(){
+  dotsEl.innerHTML = "";
+  for(let i=0;i<ITEMS.length;i++){
+    const d = document.createElement("div");
+    d.className = "dot" + (i===qIndex ? " cur" : "") + (results[i] ? (results[i].correct ? " hit" : " miss") : "");
+    dotsEl.appendChild(d);
+  }
+}
+
+// ============ 問題表示 ============
+function showQuestion(){
+  const item = ITEMS[qIndex];
+  answered = false; audioPlayed = false;
+  qnumLabel.textContent = `第${qIndex+1}問 / ${ITEMS.length}`;
+  scoreLabel.textContent = String(score);
+  sceneChip.textContent = item.scene;
+  qText.textContent = item.q;
+  prereadHint.style.display = "";
+  choicesEl.innerHTML = "";
+  item.choices.forEach((c, i) => {
+    const b = document.createElement("button");
+    b.className = "choice";
+    b.textContent = `${i+1}. ${c}`;
+    b.disabled = true; // 音声再生 or スキップまで解答不可（先読み時間）
+    b.addEventListener("click", () => answer(i));
+    choicesEl.appendChild(b);
+  });
+  playBtn.disabled = false;
+  playBtn.textContent = "▶ 音声を再生（1回だけ）";
+  audioWarn.classList.remove("show");
+  timerArea.classList.add("hidden");
+  feedbackArea.classList.add("hidden");
+  renderDots();
+}
+
+function enableChoices(){
+  Array.from(choicesEl.children).forEach(b => { b.disabled = false; });
+}
+
+// ============ 音声 ============
+playBtn.addEventListener("click", () => {
+  if(audioPlayed) return;
+  const item = ITEMS[qIndex];
+  playBtn.disabled = true;
+  playBtn.textContent = "🔊 再生中…（1回だけ・集中！）";
+  audioObj = new Audio(item.audio);
+  audioObj.addEventListener("ended", () => {
+    audioPlayed = true;
+    playBtn.textContent = "✔ 再生ずみ（英検本番も1回だけ）";
+    startTimer();
+  });
+  audioObj.addEventListener("error", audioFail);
+  const p = audioObj.play();
+  if(p && p.catch) p.catch(audioFail);
+});
+
+function audioFail(){
+  audioWarn.classList.add("show");
+  playBtn.textContent = "▶ 音声を再生（1回だけ）";
+  playBtn.disabled = false;
+}
+
+skipAudioBtn.addEventListener("click", () => {
+  audioPlayed = true;
+  audioWarn.classList.remove("show");
+  playBtn.disabled = true;
+  playBtn.textContent = "（音声なしモード）";
+  startTimer();
+});
+
+// ============ タイマー ============
+function startTimer(){
+  prereadHint.style.display = "none";
+  enableChoices();
+  timerArea.classList.remove("hidden");
+  let remain = 10.0;
+  timerBar.style.width = "100%";
+  timerText.textContent = "のこり 10 秒";
+  clearInterval(timerId);
+  timerId = setInterval(() => {
+    remain -= 0.1;
+    if(remain <= 0){
+      clearInterval(timerId);
+      timerBar.style.width = "0%";
+      timerText.textContent = "時間切れ！";
+      if(!answered) answer(-1); // 時間切れ＝不正解扱い
+      return;
+    }
+    timerBar.style.width = (remain/10*100) + "%";
+    timerText.textContent = "のこり " + Math.ceil(remain) + " 秒";
+  }, 100);
+}
+
+// ============ 解答 ============
+function answer(sel){
+  if(answered) return;
+  answered = true;
+  clearInterval(timerId);
+  const item = ITEMS[qIndex];
+  const correct = (sel === item.ans);
+  results[qIndex] = {correct: correct, sel: sel};
+  if(correct){
+    streak++;
+    const bonus = (streak >= 2) ? 50 : 0;
+    score += 100 + bonus;
+    feedbackLabel.textContent = bonus ? `⭕ 正解！ +100pt ＋連続ボーナス +${bonus}pt` : "⭕ 正解！ +100pt";
+    feedbackLabel.className = "feedback ok";
+  } else {
+    streak = 0;
+    feedbackLabel.textContent = (sel === -1) ? "⌛ 時間切れ…（本番は10秒以内にマーク！）" : "❌ ざんねん…";
+    feedbackLabel.className = "feedback ng";
+  }
+  scoreLabel.textContent = String(score);
+  // 選択肢の色付け
+  Array.from(choicesEl.children).forEach((b, i) => {
+    b.disabled = true;
+    if(i === item.ans) b.classList.add(correct && i===sel ? "sel-ok" : "reveal-ok");
+    if(!correct && i === sel) b.classList.add("sel-ng");
+  });
+  explBox.innerHTML = `<div class="wana-title">🎣 ひっかけの正体</div>${item.wana}`;
+  toraBox.innerHTML = `<div class="tora-title">📜 虎の巻ポイント</div>${item.tora}`;
+  renderHunter(item);
+  feedbackArea.classList.remove("hidden");
+  renderDots();
+  nextBtn.textContent = (qIndex === ITEMS.length-1) ? "結果を見る" : "次の問題へ";
+  feedbackArea.scrollIntoView({behavior:"smooth", block:"start"});
+}
+
+// ============ サイン語ハンター ============
+let hunterTotal = 0, hunterFound = 0;
+function renderHunter(item){
+  scriptBox.innerHTML = "";
+  signNotes.innerHTML = "";
+  hunterTotal = 0; hunterFound = 0;
+  let signId = 0;
+  item.script.forEach(line => {
+    const div = document.createElement("div");
+    div.className = "script-line";
+    if(line.sp){
+      const chip = document.createElement("span");
+      chip.className = "spk " + (line.sp === "M" ? "m" : "w");
+      chip.textContent = (line.sp === "M" ? "男性" : "女性");
+      div.appendChild(chip);
+    }
+    line.seg.forEach(seg => {
+      const words = seg.t.split(/(\s+)/);
+      if(seg.sign){
+        const myId = "sign" + (signId++);
+        hunterTotal++;
+        // ノート（最初は非表示）
+        const note = document.createElement("div");
+        note.className = "signnote";
+        note.id = "note-" + myId;
+        note.innerHTML = `<b class="k-${seg.sign.k}">${escapeHtml(seg.sign.label)}</b>：${seg.sign.note}`;
+        signNotes.appendChild(note);
+        words.forEach(wd => {
+          if(/^\s+$/.test(wd) || wd === ""){ div.appendChild(document.createTextNode(wd)); return; }
+          const sp = document.createElement("span");
+          sp.className = "w";
+          sp.dataset.sign = myId;
+          sp.dataset.kind = seg.sign.k;
+          sp.textContent = wd;
+          sp.addEventListener("click", onWordTap);
+          div.appendChild(sp);
+        });
+      } else {
+        words.forEach(wd => {
+          if(/^\s+$/.test(wd) || wd === ""){ div.appendChild(document.createTextNode(wd)); return; }
+          const sp = document.createElement("span");
+          sp.className = "w";
+          sp.textContent = wd;
+          sp.addEventListener("click", onWordTap);
+          div.appendChild(sp);
+        });
+      }
+    });
+    scriptBox.appendChild(div);
+  });
+  updateHunterStatus();
+  revealBtn.disabled = false;
+}
+
+function onWordTap(e){
+  const el = e.currentTarget;
+  const sid = el.dataset.sign;
+  if(sid){
+    revealSign(sid, true);
+  } else {
+    el.classList.add("miss-flash");
+    setTimeout(() => el.classList.remove("miss-flash"), 350);
+  }
+}
+
+function revealSign(sid, withPoint){
+  const note = document.getElementById("note-" + sid);
+  if(!note || note.classList.contains("shown")) return;
+  note.classList.add("shown");
+  const spans = scriptBox.querySelectorAll(`[data-sign="${sid}"]`);
+  spans.forEach(sp => {
+    sp.classList.add("found-" + sp.dataset.kind);
+  });
+  hunterFound++;
+  if(withPoint){
+    score += 20;
+    scoreLabel.textContent = String(score);
+  }
+  updateHunterStatus();
+}
+
+function updateHunterStatus(){
+  hunterStatus.textContent = `見つけたサイン語：${hunterFound} / ${hunterTotal}` + (hunterFound === hunterTotal && hunterTotal > 0 ? "　🎉 全部発見！" : "");
+  if(hunterFound === hunterTotal) revealBtn.disabled = true;
+}
+
+revealBtn.addEventListener("click", () => {
+  const notes = signNotes.querySelectorAll(".signnote");
+  notes.forEach(n => {
+    const sid = n.id.replace("note-","");
+    revealSign(sid, false);
+  });
+});
+
+function escapeHtml(s){
+  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+// ============ 遷移 ============
+document.getElementById("start-btn").addEventListener("click", () => {
+  startView.classList.add("hidden");
+  quizView.classList.remove("hidden");
+  showQuestion();
+});
+
+nextBtn.addEventListener("click", () => {
+  if(audioObj){ audioObj.pause(); audioObj = null; }
+  if(qIndex === ITEMS.length - 1){
+    showResult();
+  } else {
+    qIndex++;
+    showQuestion();
+    window.scrollTo({top:0, behavior:"smooth"});
+  }
+});
+
+// ============ 結果 ============
+function showResult(){
+  quizView.classList.add("hidden");
+  resultView.classList.remove("hidden");
+  const correctCount = results.filter(r => r && r.correct).length;
+  const pct = Math.round(correctCount / ITEMS.length * 100);
+  const scoreEl = document.getElementById("result-score");
+  const labelEl = document.getElementById("result-label");
+  scoreEl.textContent = String(score);
+  document.getElementById("result-detail").textContent = `正解 ${correctCount} / ${ITEMS.length} 問（${pct}%）`;
+  setTimeout(() => { document.getElementById("passline-fill").style.width = pct + "%"; }, 100);
+
+  if(pct >= 90){
+    labelEl.textContent = "👑 S級合格！";
+    labelEl.className = "result-label sclass";
+    scoreEl.classList.add("gold");
+    confetti(true);
+  } else if(pct >= 70){
+    labelEl.textContent = "🎉 合格ライン突破！";
+    labelEl.className = "result-label pass";
+    confetti(false);
+  } else {
+    labelEl.textContent = "もうひといき！";
+    labelEl.className = "result-label fail";
+  }
+
+  // まちがえた問題の解説
+  const wrongEl = document.getElementById("wrong-review");
+  wrongEl.innerHTML = "";
+  const wrongs = ITEMS.map((it, i) => ({it, r: results[i], i})).filter(x => !(x.r && x.r.correct));
+  if(wrongs.length){
+    const h = document.createElement("h3");
+    h.textContent = "📝 まちがえた問題のふりかえり";
+    wrongEl.appendChild(h);
+    wrongs.forEach(x => {
+      const d = document.createElement("div");
+      d.className = "wrong-item";
+      const yourAns = (x.r && x.r.sel >= 0) ? x.it.choices[x.r.sel] : "（時間切れ）";
+      d.innerHTML = `<b>第${x.i+1}問：${escapeHtml(x.it.q)}</b><br>あなたの答え：${escapeHtml(yourAns)}<br>正解：<b>${escapeHtml(x.it.choices[x.it.ans])}</b><br>${x.it.wana}`;
+      wrongEl.appendChild(d);
+    });
+  }
+}
+
+// ============ 紙吹雪 ============
+function confetti(gold){
+  const colors = gold ? ["#c9a227","#f7d000","#ffe98a","#fff"] : ["#2fbdea","#8dc63f","#f7d000","#ff8a8a","#b28aff"];
+  for(let i=0;i<80;i++){
+    const c = document.createElement("div");
+    c.className = "confetti";
+    c.style.left = Math.random()*100 + "vw";
+    c.style.background = colors[Math.floor(Math.random()*colors.length)];
+    c.style.animation = `fall ${2.2 + Math.random()*2}s linear ${Math.random()*1.2}s forwards`;
+    c.style.transform = `rotate(${Math.random()*360}deg)`;
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 6000);
+  }
+}
+
+// ============ リトライ ============
+document.getElementById("retry-btn").addEventListener("click", () => {
+  qIndex = 0; score = 0; streak = 0; results.length = 0;
+  document.getElementById("result-score").classList.remove("gold");
+  document.getElementById("passline-fill").style.width = "0%";
+  resultView.classList.add("hidden");
+  quizView.classList.remove("hidden");
+  showQuestion();
+  window.scrollTo({top:0});
+});
+</script>
+</body>
+</html>
