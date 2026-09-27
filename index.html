@@ -128,7 +128,7 @@ footer{text-align:center; font-size:11px; color:#9ab0bc; padding:14px 16px 30px;
 
     <div class="card">
       <span class="scenechip" id="scene-chip"></span>
-      <div class="qtext" id="q-text"></div>
+      <div class="qtext hidden" id="q-text"></div>
       <div style="font-size:12px; color:#7b93a0;" id="preread-hint">👇 まず選択肢を先読み！読めたら再生ボタン</div>
       <div class="choices" id="choices"></div>
 
@@ -346,7 +346,8 @@ function showQuestion(){
   qnumLabel.textContent = `第${qIndex+1}問 / ${ITEMS.length}`;
   scoreLabel.textContent = String(score);
   sceneChip.textContent = item.scene;
-  qText.textContent = item.q;
+  qText.textContent = "";
+  qText.classList.add("hidden");
   prereadHint.style.display = "";
   choicesEl.innerHTML = "";
   item.choices.forEach((c, i) => {
@@ -449,6 +450,8 @@ function answer(sel){
     if(i === item.ans) b.classList.add(correct && i===sel ? "sel-ok" : "reveal-ok");
     if(!correct && i === sel) b.classList.add("sel-ng");
   });
+  qText.textContent = "🎧 設問：" + item.q;
+  qText.classList.remove("hidden");
   explBox.innerHTML = `<div class="wana-title">🎣 ひっかけの正体</div>${item.wana}`;
   toraBox.innerHTML = `<div class="tora-title">📜 虎の巻ポイント</div>${item.tora}`;
   renderHunter(item);
