@@ -97,7 +97,7 @@ footer{text-align:center; font-size:11px; color:#9ab0bc; padding:14px 16px 30px;
   <div class="wrap" style="padding:0;">
     <div class="brand">KATEぷら｜つまずきを、プラスに。</div>
     <h1>🎧 英検2級 リスニングマスター</h1>
-    <div class="sub">試作版・4問（対話2問＋説明文2問）／英文・音声はすべてオリジナル</div>
+    <div class="sub">試作版・8問（対話4問＋説明文4問）／英文・音声はすべてオリジナル</div>
   </div>
 </header>
 
@@ -121,7 +121,7 @@ footer{text-align:center; font-size:11px; color:#9ab0bc; padding:14px 16px 30px;
   <!-- 問題画面 -->
   <div class="hidden" id="quiz-view">
     <div class="scorebar">
-      <span id="qnum-label">第1問 / 4</span>
+      <span id="qnum-label">第1問 / 8</span>
       <span>SCORE <span class="pt" id="score-label">0</span> pt</span>
     </div>
     <div class="dots" id="dots"></div>
@@ -295,6 +295,93 @@ const ITEMS = [
     ],
     wana:"「visited the office」「had lunch」は一緒にした行動、「sightseeing」は同僚だけの行動。alone（1人で）したのはホテルでのレポート作成だけ。",
     tora:"虎の巻：「誰が・いつ・何をしたか」を切り替えサインごとに整理する。質問の alone / together を聞き逃さない。"
+  },
+  {
+    id:"itemE", part:1, audio:"audio/itemE.mp3", scene:"第1部・浜辺での会話",
+    q:"Why can't the woman swim near the rocks?",
+    choices:["The water is too cold","The tide is strong","The area is closed for cleaning","There are too many people"],
+    ans:1,
+    script:[
+      {sp:"W", seg:[{t:"Excuse me, are we "},{t:"allowed", sign:{k:"vocab", label:"allowed", note:"allow（許可する）＝be allowed to doの形で頻出。ここでは「許可されているか」を尋ねている。"}},{t:" to swim near the rocks today?"}]},
+      {sp:"M", seg:[
+        {t:"Actually, the ", sign:{k:"shift", label:"Actually", note:"Actually＝相手の想定を訂正する合図。ここから理由の核心が来る。得点に直結するサイン語！"}},
+        {t:"tide", sign:{k:"vocab", label:"tide", note:"tide（潮）＝海・浜辺の場面で頻出。潮の強さが理由になっている。"}},
+        {t:" is quite strong this afternoon, so swimming there "},
+        {t:"isn't allowed", sign:{k:"vocab", label:"isn't allowed", note:"allow（許可する）の否定形。理由（tideが強い）とセットで覚える。"}},
+        {t:" until it calms down."}
+      ]},
+      {sp:"W", seg:[{t:"Oh, I see. What about here by the shore?"}]},
+      {sp:"M", seg:[{t:"That's fine. This area is safe regardless of the tide."}]}
+    ],
+    wana:"「too cold」「closed for cleaning」「too many people」はどれも本文に出てこないひっかけ。理由はActuallyの直後の「tideが強い」だけ。",
+    tora:"虎の巻：Actually（実は〜）の直後は想定が覆るサイン。理由・条件を尋ねる設問では、このサインの後だけを拾う。"
+  },
+  {
+    id:"itemF", part:1, audio:"audio/itemF.mp3", scene:"第1部・水泳の大会後の会話",
+    q:"What problem did the man have during the race?",
+    choices:["He got lost","His leg cramped","He forgot the rules","He arrived late"],
+    ans:1,
+    script:[
+      {sp:"W", seg:[{t:"How did the race go?"}]},
+      {sp:"M", seg:[
+        {t:"I didn't "},
+        {t:"win", sign:{k:"vocab", label:"win", note:"win（勝つ）＝「勝てなかった」という結果の話で、設問（トラブルの内容）とは別。ここに引っ張られない。"}},
+        {t:", but I finished second. "},
+        {t:"Actually, I almost couldn't ", sign:{k:"shift", label:"Actually", note:"Actuallyの後に具体的なトラブルの説明が来る合図。ここが答えの根拠。"}},
+        {t:"float", sign:{k:"vocab", label:"float", note:"float（浮く）＝水泳・海関連の頻出語。"}},
+        {t:" when my leg cramped halfway through."}
+      ]},
+      {sp:"W", seg:[{t:"Are you okay now?"}]},
+      {sp:"M", seg:[{t:"Yeah, I'm fine. I just need to rest before the next round."}]}
+    ],
+    wana:"「didn't win」に引っ張られて「負けたこと」自体をトラブルだと勘違いしがち。設問は「レース中に起きた問題」＝leg cramped（足がつった）が正解。",
+    tora:"虎の巻：勝敗の話と「起きたトラブル」の話は別物。Actuallyの後にくる具体的な出来事が設問の答えになりやすい。"
+  },
+  {
+    id:"itemG", part:2, audio:"audio/itemG.mp3", scene:"第2部・地域イベント型（水泳大会）",
+    q:"Why was the competition postponed?",
+    choices:["Not enough swimmers registered","The tide was expected to be too strong","A swimmer was injured","The weather forecast showed rain"],
+    ans:1,
+    script:[
+      {sp:null, seg:[
+        {t:"Every summer, the town holds a swimming competition at the bay. This year, more than eighty swimmers registered to take part. "},
+        {t:"However, two days before the event", sign:{k:"shift", label:"However, two days before the event", note:"However＝計画が変わる合図。理由がこのあとに続く。得点に直結するサイン語！"}},
+        {t:", officials discovered that the "},
+        {t:"tide", sign:{k:"vocab", label:"tide", note:"tide（潮）＝ここでは大会延期の直接の原因。"}},
+        {t:" would be unusually strong that weekend, so they decided to "},
+        {t:"postpone", sign:{k:"vocab", label:"postpone", note:"postpone（延期する）＝重要動詞。cancel（中止）と混同しないよう注意。"}},
+        {t:" the race by one week. Some swimmers were disappointed, but most agreed that safety was more important. "},
+        {t:"In the end", sign:{k:"shift", label:"In the end", note:"最終的な結果への切り替え。"}},
+        {t:", the rescheduled competition took place under calm water, and a local teenager "},
+        {t:"won", sign:{k:"vocab", label:"won", note:"win（勝つ）の過去形。"}},
+        {t:" first place."}
+      ]}
+    ],
+    wana:"「Not enough swimmers registered」は本文の「80人以上が登録」と矛盾。「A swimmer was injured」「rain」はどちらも本文に出てこない。理由はHoweverの直後の「tideが強くなる予報」だけ。",
+    tora:"虎の巻：However＋時間表現（two days before）は計画変更の合図。直後の理由だけを拾い、他の選択肢の単語につられない。"
+  },
+  {
+    id:"itemH", part:2, audio:"audio/itemH.mp3", scene:"第2部・人物ストーリー型（浜辺での一日）",
+    q:"What did Ken and his brother do while swimming was not allowed?",
+    choices:["They went home early","They built sandcastles","They watched other people swim","They talked to the lifeguard"],
+    ans:1,
+    script:[
+      {sp:null, seg:[
+        {t:"Ken went to the beach with his family last Sunday. When they arrived, a lifeguard told them that swimming "},
+        {t:"was not allowed", sign:{k:"vocab", label:"was not allowed", note:"allow（許可する）の受け身。まだ泳げない状態。"}},
+        {t:" because of a strong current near the shore. Ken's younger brother was upset, but they decided to build sandcastles "},
+        {t:"instead", sign:{k:"shift", label:"instead", note:"instead＝代わりの行動への切り替え。設問「泳げない間に何をしたか」の答えがここ。"}},
+        {t:". "},
+        {t:"Later in the afternoon", sign:{k:"shift", label:"Later in the afternoon", note:"時間の切り替え＋状況が変わる合図。ここから「泳げるようになった後」の話に移る。"}},
+        {t:", the current became weaker, and the lifeguard finally "},
+        {t:"allowed", sign:{k:"vocab", label:"allowed", note:"allow（許可する）＝ここでようやく許可が出る。"}},
+        {t:" people to swim. Ken and his brother quickly ran into the water and were able to "},
+        {t:"float", sign:{k:"vocab", label:"float", note:"float（浮く）。"}},
+        {t:" and play for almost an hour before it was time to go home."}
+      ]}
+    ],
+    wana:"「泳いだ」「浮いて遊んだ」のは許可が出た後の話。設問は「泳げなかった間」を聞いているので、instead以降の「砂の城を作った」が正解。",
+    tora:"虎の巻：instead（代わりに）の直後は「できなかった間にしたこと」の答え。時間の前後関係（泳げない期間／泳げるようになってから）を整理する。"
   }
 ];
 
